@@ -8,4 +8,3 @@ https://op.dllkids.xyz/packages/x86_64/luci-app-store_0.1.26-3_all.ipk
 https://op.dllkids.xyz/packages/x86_64/webdav2_4.3.1-11_x86_64.ipk
 https://op.dllkids.xyz/packages/x86_64/unishare_1.0.1-11_all.ipk
 https://op.dllkids.xyz/packages/x86_64/luci-app-unishare_git-25.318.30650-685067e_all.ipk
-https://op.dllkids.xyz/packages/x86_64/luci-app-bypass_git-25.320.31294-e243c74_all.ipk

@@ -12,6 +12,10 @@ PACKAGES=""
 PACKAGES="$PACKAGES luci-theme-argon luci-i18n-argon-config-zh-cn"
 
 # 常用系统管理组件
+PACKAGES="$PACKAGES luci-i18n-ttyd-zh-cn"
+PACKAGES="$PACKAGES luci-i18n-filebrowser-zh-cn"
+PACKAGES="$PACKAGES luci-i18n-cifs-mount-zh-cn"
+PACKAGES="$PACKAGES unishare luci-app-unishare"
 
 # Diskman 磁盘管理
 PACKAGES="$PACKAGES luci-i18n-diskman-zh-cn"
@@ -21,17 +25,18 @@ PACKAGES="$PACKAGES luci-i18n-cpulimit-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-statistics-zh-cn"
 
 # 常用软件服务
-PACKAGES="$PACKAGES luci-i18n-ttyd-zh-cn"
-PACKAGES="$PACKAGES luci-i18n-filebrowser-zh-cn"
-PACKAGES="$PACKAGES luci-i18n-cifs-mount-zh-cn"
-PACKAGES="$PACKAGES unishare luci-app-unishare"
-PACKAGES="$PACKAGES luci-app-bypass"
-PACKAGES="$PACKAGES luci-i18n-homeproxy-zh-cn"
 
 # OpenClash 代理
 PACKAGES="$PACKAGES luci-app-openclash"
 # Passwall 代理
 PACKAGES="$PACKAGES luci-i18n-passwall-zh-cn"
+# V2raya 代理
+PACKAGES="$PACKAGES luci-i18n-v2raya-zh-cn"
+# Bypass 代理
+PACKAGES="$PACKAGES luci-app-bypass"
+# homeproxy 代理
+PACKAGES="$PACKAGES luci-i18n-homeproxy-zh-cn"
+
 # frp 和 nps 内网穿透
 # PACKAGES="$PACKAGES luci-i18n-nps-zh-cn luci-i18n-frpc-zh-cn"
 

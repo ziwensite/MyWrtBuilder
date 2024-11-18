@@ -11,8 +11,8 @@ lan_ip_address="192.168.2.2"
 # pppoe_password="456"
 # wan_device="eth0"
 #
-# ttyd_auto_login="/bin/login -f root"
-# shell="bash"
+ttyd_auto_login="/bin/login -f root"
+shell="bash"
 
 # log potential errors
 exec >/tmp/setup.log 2>&1

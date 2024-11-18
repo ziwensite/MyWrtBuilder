@@ -30,6 +30,7 @@ PACKAGES="$PACKAGES luci-i18n-passwall-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-nps-zh-cn luci-i18n-frpc-zh-cn"
 
 # 常用的网络存储组件
+PACKAGES="$PACKAGES taskd luci-lib-taskd luci-lib-xterm luci-app-store"
 
 # 文件助手
 PACKAGES="$PACKAGES luci-app-fileassistant"
@@ -38,9 +39,9 @@ PACKAGES="$PACKAGES luci-i18n-hd-idle-zh-cn"
 # p910nd 打印服务器
 PACKAGES="$PACKAGES luci-i18n-p910nd-zh-cn"
 # GoWebDav
-PACKAGES="$PACKAGES luci-i18n-gowebdav-zh-cn"
+# PACKAGES="$PACKAGES luci-i18n-gowebdav-zh-cn"
 # Samba 网络共享
-PACKAGES="$PACKAGES luci-i18n-samba4-zh-cn"
+# PACKAGES="$PACKAGES luci-i18n-samba4-zh-cn"
 # qBittorrent 下载器
 PACKAGES="$PACKAGES luci-i18n-qbittorrent-zh-cn"
 # Aria2 下载器

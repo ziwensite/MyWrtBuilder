@@ -6,6 +6,6 @@ config global
         option transparency '0.5'
         option transparency_dark '0.5'
         option mode 'normal'
-        option primary '#CC9999'
+        option primary '#5e72e4'
         option save '保存更改'
         option bing_background '0'

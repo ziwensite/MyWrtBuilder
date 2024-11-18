@@ -70,9 +70,9 @@ jobs:
         working-directory: ${{ env.VENDOR }}-imagebuilder-${{ env.VERSION }}-x86-64.Linux-x86_64
         run: |
           # Creator folders
-          sudo mkdir -p /files/etc/uci-defaults
+          sudo mkdir -p files/etc/uci-defaults
           # Copy custom setting file
-          sudo cp $UCI_CUSTOM_FILE /files/etc/uci-defaults
+          sudo cp $UCI_CUSTOM_FILE files/etc/uci-defaults
 
       - name: Generate Firmware
         working-directory: ${{ env.VENDOR }}-imagebuilder-${{ env.VERSION }}-x86-64.Linux-x86_64

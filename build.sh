@@ -30,12 +30,6 @@ PACKAGES="$PACKAGES luci-i18n-statistics-zh-cn"
 PACKAGES="$PACKAGES luci-app-openclash"
 # Passwall 代理
 PACKAGES="$PACKAGES luci-i18n-passwall-zh-cn"
-# V2raya 代理
-PACKAGES="$PACKAGES luci-i18n-v2raya-zh-cn"
-# Bypass 代理
-PACKAGES="$PACKAGES luci-app-bypass"
-# homeproxy 代理
-PACKAGES="$PACKAGES luci-i18n-homeproxy-zh-cn"
 
 # frp 和 nps 内网穿透
 # PACKAGES="$PACKAGES luci-i18n-nps-zh-cn luci-i18n-frpc-zh-cn"

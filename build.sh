@@ -50,7 +50,7 @@ PACKAGES="$PACKAGES luci-i18n-aria2-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-vsftpd-zh-cn"
 
 # Docker 组件
-PACKAGES="$PACKAGES luci-i18n-dockerman-zh-cn luci-i18n-docker-zh-cn"
+PACKAGES="$PACKAGES luci-i18n-dockerman-zh-cn"
 
 # VPN 类
 

@@ -17,11 +17,9 @@ on:
         default: 'false'
 
 env:
-  # DOWNLOAD_BASE: https://downloads.immortalwrt.org
-  DOWNLOAD_BASE: http://downloads.openwrt.org
-  # VENDOR: immortalwrt
-  VENDOR: openwrt
-  VERSION: 23.05.5
+  DOWNLOAD_BASE: https://downloads.immortalwrt.org
+  VENDOR: immortalwrt
+  VERSION: 23.05.3
   UCI_CUSTOM_FILE: uci-custom
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel

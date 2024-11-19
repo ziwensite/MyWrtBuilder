@@ -43,3 +43,7 @@ sed -i "s/CONFIG_VMDK_IMAGES=y/# CONFIG_VMDK_IMAGES is not set/" .config
 
 # Increase rootfs partition size to 500M
 sed -i "s/CONFIG_TARGET_ROOTFS_PARTSIZE=300/CONFIG_TARGET_ROOTFS_PARTSIZE=1024/" .config
+
+# /sbin/mount.cifs 
+ln -s /usr/sbin/mount.cifs /sbin/mount.cifs
+

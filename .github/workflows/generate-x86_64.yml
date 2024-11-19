@@ -70,6 +70,8 @@ jobs:
         working-directory: ${{ env.VENDOR }}-imagebuilder-${{ env.VERSION }}-x86-64.Linux-x86_64
         run: |
           bash build.sh
+          # /sbin/mount.cifs
+          sudo ln -s /usr/sbin/mount.cifs /sbin/mount.cifs
 
       - name: Upload VDI Image For Development Purpose
         if: github.ref == 'refs/heads/dev'

@@ -28,11 +28,11 @@ PACKAGES="$PACKAGES luci-i18n-statistics-zh-cn"
 # 常用软件服务
 
 # OpenClash 代理
-PACKAGES="$PACKAGES luci-app-openclash"
+# PACKAGES="$PACKAGES luci-app-openclash"
 # Passwall 代理
 # PACKAGES="$PACKAGES luci-i18n-passwall-zh-cn"
 # v2raya 代理
-PACKAGES="$PACKAGES luci-i18n-v2raya-zh-cn"
+# PACKAGES="$PACKAGES luci-i18n-v2raya-zh-cn"
 
 # frp 和 nps 内网穿透
 # PACKAGES="$PACKAGES luci-i18n-nps-zh-cn luci-i18n-frpc-zh-cn"

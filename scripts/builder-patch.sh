@@ -27,7 +27,7 @@ sed -i "s/CONFIG_QCOW2_IMAGES=y/# CONFIG_QCOW2_IMAGES is not set/" .config
 sed -i "s/CONFIG_TARGET_ROOTFS_EXT4FS=y/# CONFIG_TARGET_ROOTFS_EXT4FS is not set/" .config
 
 # Not generate ROOTFS_CPIOGZ images for it is too big
-# sed -i "s/CONFIG_TARGET_ROOTFS_CPIOGZ=y/# CONFIG_TARGET_ROOTFS_CPIOGZ is not set/" .config
+sed -i "s/CONFIG_TARGET_ROOTFS_CPIOGZ=y/# CONFIG_TARGET_ROOTFS_CPIOGZ is not set/" .config
 
 # Not generate ROOTFS_TARGZ images for it is too big
 sed -i "s/CONFIG_TARGET_ROOTFS_TARGZ=y/# CONFIG_TARGET_ROOTFS_TARGZ is not set/" .config

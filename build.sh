@@ -13,7 +13,7 @@ PACKAGES="$PACKAGES luci-theme-argon luci-i18n-argon-config-zh-cn"
 
 # 常用系统管理组件
 PACKAGES="$PACKAGES luci-i18n-ttyd-zh-cn"
-PACKAGES="$PACKAGES luci-i18n-filebrowser-zh-cn"
+PACKAGES="$PACKAGES luci-i18n-filebrowser-go-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-cifs-mount-zh-cn cifsmount"
 PACKAGES="$PACKAGES unishare luci-app-unishare"
 PACKAGES="$PACKAGES unishare luci-app-partexp"

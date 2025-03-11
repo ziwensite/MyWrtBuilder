@@ -65,7 +65,7 @@ PACKAGES="$PACKAGES luci-i18n-p910nd-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-dockerman-zh-cn"
 
 # VPN 类
-
+PACKAGES="$PACKAGES luci-i18n-cloudflared-zh-cn"
 # IPSec VPN
 PACKAGES="$PACKAGES luci-i18n-ipsec-vpnd-zh-cn"
 # Zerotier

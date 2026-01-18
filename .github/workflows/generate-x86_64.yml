@@ -1,97 +1,111 @@
-# This is a basic workflow to help you get started with Actions
+# This workflow uses ImmortalWrt ImageBuilder to generate custom x86_64 firmware
+name: Build Custom ImmortalWrt Firmware (ImageBuilder)
 
-name: Generate x86_64 OpenWrt Firmware
-
-# Controls when the workflow will run
 on:
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
       release: 
-        description: 将编译出的镜像上传到 Release
+        description: 'Upload firmware to Release'
         required: false
         default: 'true'
       upload-all:
-        description: 将编译出的所有镜像都上传到 Artifacts
+        description: 'Upload all images to Artifacts'
         required: false
         default: 'false'
 
 env:
-  DOWNLOAD_BASE: https://downloads.immortalwrt.org
+  # Use the latest available RELEASE (as of your knowledge base)
+  #DOWNLOAD_BASE: https://downloads.immortalwrt.org
+  DOWNLOAD_BASE: https://mirrors.pku.edu.cn/immortalwrt
   VENDOR: immortalwrt
-  VERSION: 24.10.0
-  UCI_CUSTOM_FILE: uci-custom
+  VERSION: 24.10.4
+  TARGET: x86/64
+  IB_DIR: ${{ github.workspace }}/${{ env.VENDOR }}-imagebuilder-${{ env.VERSION }}-x86-64.Linux-x86_64
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  Generate:
-    # The type of runner that the job will run on
+  build:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Initialization Environment
+      - name: Install Dependencies
         run: |
-          sudo apt-get -qq update
-          sudo apt-get -qq install build-essential libncurses5-dev libncursesw5-dev zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip qemu-utils mkisofs
+          sudo apt-get update
+          sudo apt-get install -y wget tar zstd
 
-      - name: Setup Environment Variables
+      - name: Set Environment Variables
         run: |
           echo "DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
           echo "DATETIME=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
-      
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: Checkout
-        uses: actions/checkout@v3
-        with: 
-          path: origin
 
-      - name: Download Image Builder
-        run: |
-          wget $DOWNLOAD_BASE/releases/$VERSION/targets/x86/64/$VENDOR-imagebuilder-$VERSION-x86-64.Linux-x86_64.tar.zst
-          tar -xvf $VENDOR-imagebuilder-$VERSION-x86-64.Linux-x86_64.tar.zst
-          rm -rf $VENDOR-imagebuilder-$VERSION-x86-64.Linux-x86_64.tar.zst
-          cp -r $GITHUB_WORKSPACE/origin/* $GITHUB_WORKSPACE/$VENDOR-imagebuilder-$VERSION-x86-64.Linux-x86_64/
-      
-      - name: Download External Packages
-        working-directory: ${{ env.VENDOR }}-imagebuilder-${{ env.VERSION }}-x86-64.Linux-x86_64
-        run: |
-          cat external-package-urls.txt | xargs wget -P packages
-      
-      - name: Run Patch and DIY Scripts
-        working-directory: ${{ env.VENDOR }}-imagebuilder-${{ env.VERSION }}-x86-64.Linux-x86_64
-        run: |
-          bash scripts/builder-patch.sh
-          bash scripts/clash.sh
-          bash scripts/zsh.sh
+      - name: Checkout Custom Configs (Optional)
+        uses: actions/checkout@v4
+        with:
+          path: custom
 
-      - name: Generate Firmware
-        working-directory: ${{ env.VENDOR }}-imagebuilder-${{ env.VERSION }}-x86-64.Linux-x86_64
+      - name: Download Official ImageBuilder
         run: |
-          bash build.sh
+          wget ${DOWNLOAD_BASE}/releases/${VERSION}/targets/x86/64/${VENDOR}-imagebuilder-${VERSION}-x86-64.Linux-x86_64.tar.zst
+          tar -I zstd -xf ${VENDOR}-imagebuilder-${VERSION}-x86-64.Linux-x86_64.tar.zst
+          rm ${VENDOR}-imagebuilder-${VERSION}-x86-64.Linux-x86_64.tar.zst
 
-      - name: Upload VDI Image For Development Purpose
+      - name: (Optional) Download Extra .ipk Packages
+        working-directory: ${{ env.IB_DIR }}
+        run: |
+          # Example: download extra packages from official repo
+          mkdir -p packages-extra
+          # Replace with your needed packages, e.g.:
+          # wget -P packages-extra https://downloads.immortalwrt.org/releases/${VERSION}/targets/x86/64/packages/luci-app-advanced-reboot_*.ipk
+          # Or use your own external-package-urls.txt containing .ipk URLs
+          if [ -f "${{ github.workspace }}/custom/external-package-urls.txt" ]; then
+            cat ${{ github.workspace }}/custom/external-package-urls.txt | xargs -I {} wget -P packages-extra {}
+          fi
+
+      - name: Copy Custom Files (e.g. uci-defaults, banner, etc.)
+        working-directory: ${{ env.IB_DIR }}
+        run: |
+          # Copy custom files into ImageBuilder root
+          if [ -d "${{ github.workspace }}/custom/files" ]; then
+            cp -r ${{ github.workspace }}/custom/files .
+          fi
+          # Copy custom uci-defaults script (runs on first boot)
+          if [ -f "${{ github.workspace }}/custom/uci-custom" ]; then
+            mkdir -p files/etc/uci-defaults
+            cp ${{ github.workspace }}/custom/uci-custom files/etc/uci-defaults/99-custom
+            chmod +x files/etc/uci-defaults/99-custom
+          fi
+
+      - name: Build Firmware
+        working-directory: ${{ env.IB_DIR }}
+        run: |
+          # Use make image with your custom profile/config
+          # You can define PROFILE in a file or inline
+          make image \
+            PROFILE="generic" \
+            PACKAGES="-ppp -ppp-mod-pppoe -firewall luci ca-bundle curl nano vim htop" \
+            FILES="./files" \
+            EXTRA_PACKAGES_DIR="./packages-extra"
+
+      - name: Upload VDI (Dev Only)
         if: github.ref == 'refs/heads/dev'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.VENDOR }}-${{ env.VERSION }}-x86_64-vdi-image-${{ env.DATETIME }}
-          path: ${{ env.VENDOR }}-imagebuilder-${{ env.VERSION }}-x86-64.Linux-x86_64/bin/targets/x86/64/*.vdi
+          name: firmware-vdi-${{ env.DATETIME }}
+          path: ${{ env.IB_DIR }}/bin/targets/x86/64/*.vdi
 
-      - name: Upload All Firmware to Artifacts
+      - name: Upload All Artifacts
         if: github.event.inputs.upload-all == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.VENDOR }}-${{ env.VERSION }}-x86_64-images-${{ env.DATETIME }}
-          path: ${{ env.VENDOR }}-imagebuilder-${{ env.VERSION }}-x86-64.Linux-x86_64/bin/targets/x86/64/*
+          name: firmware-all-${{ env.DATETIME }}
+          path: ${{ env.IB_DIR }}/bin/targets/x86/64/*
 
-      - name: Upload Firmware to Release
+      - name: Upload to Release
         if: github.event.inputs.release == 'true'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file_glob: true
-          file: ${{ env.VENDOR }}-imagebuilder-${{ env.VERSION }}-x86-64.Linux-x86_64/bin/targets/x86/64/*
-          asset_name: ${{ env.DATE }}-${{ github.event.repository.name }}-${{ github.sha }}
-          tag: ${{ env.VENDOR }}-release-${{ env.DATE }}
+          file: ${{ env.IB_DIR }}/bin/targets/x86/64/*
+          asset_name: ${{ env.DATE }}-immortalwrt-custom
+          tag: release-${{ env.DATE }}
           overwrite: true

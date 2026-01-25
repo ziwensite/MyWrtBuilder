@@ -16,7 +16,7 @@ PACKAGES="$PACKAGES luci-i18n-ttyd-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-filebrowser-go-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-cifs-mount-zh-cn cifsmount"
 PACKAGES="$PACKAGES unishare luci-app-unishare"
-PACKAGES="$PACKAGES unishare luci-app-partexp"
+PACKAGES="$PACKAGES luci-app-partexp"
 
 # Diskman 磁盘管理
 PACKAGES="$PACKAGES luci-i18n-diskman-zh-cn"

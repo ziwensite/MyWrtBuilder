@@ -9,3 +9,7 @@ https://dl.openwrt.ai/packages-25.12/x86_64/kiddin9/unishare_1.1.2-r8_all.ipk
 https://dl.openwrt.ai/packages-25.12/x86_64/kiddin9/luci-app-unishare_1.0.2-r1-r5_all.ipk
 https://dl.openwrt.ai/packages-25.12/x86_64/kiddin9/luci-app-partexp_2.0.2-r19_all.ipk
 https://dl.openwrt.ai/packages-25.12/x86_64/kiddin9/luci-app-fileassistant_1.0-r8_all.ipk
+https://dl.openwrt.ai/packages-25.12/x86_64/kiddin9/luci-app-syncthing_26.360.15116~87a4520_all.ipk
+https://dl.openwrt.ai/packages-25.12/x86_64/kiddin9/lucky_2.26.1-r15_x86_64.ipk
+https://dl.openwrt.ai/packages-25.12/x86_64/kiddin9/luci-app-lucky_3.0.3-r16_all.ipk
+https://dl.openwrt.ai/packages-25.12/x86_64/kiddin9/luci-app-tailscale_1.2.6-r19_all.ipk

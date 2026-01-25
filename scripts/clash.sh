@@ -1,18 +1,23 @@
 #!/bin/bash
 
+set -e  # 遇错立即退出
+
 echo "Start Clash Core Download !"
 echo "Current Path:  $ PWD"
 
+# 创建目标目录并进入
 mkdir -p files/etc/openclash/core
-cd files/etc/openclash/core || { echo "Clash core path does not exist!"; exit 1; }
+cd files/etc/openclash/core
 
-# Define URL without spaces or quotes around =
+# 定义 Meta 内核下载地址（英文、无空格、紧贴等号）
 CLASH_URL="https://raw.githubusercontent.com/vernesong/OpenClash/core/master/meta/clash-linux-amd64.tar.gz"
 
 echo "Downloading Clash Meta Core from:  $ CLASH_URL"
+
+# 下载
 wget -O clash.tar.gz " $ CLASH_URL"
 
-# Detect file type
+# 判断压缩格式
 if file clash.tar.gz | grep -q "gzip compressed data"; then
     echo "Detected as gzip-compressed binary (not tar). Decompressing..."
     mv clash.tar.gz clash.gz
@@ -27,20 +32,23 @@ else
     exit 1
 fi
 
+# 检查二进制是否存在
 if [ ! -f " $ BINARY_NAME" ]; then
-    echo "Error: Clash binary ' $ BINARY_NAME' not found after extraction!" >&2
+    echo "Error: Expected binary ' $ BINARY_NAME' not found!" >&2
     exit 1
 fi
 
+# 赋予执行权限
 chmod +x " $ BINARY_NAME"
 
-# Create compatibility symlinks or copies
+# 复制为多个兼容名称
 cp " $ BINARY_NAME" clash_dev
 cp " $ BINARY_NAME" clash_tun
 cp " $ BINARY_NAME" clash_meta
-cp " $ BINARY_NAME" clash
+cp " $ BINARY_NAME" clash  # 默认核心
 
+# 清理临时文件
 rm -f clash.tar.gz clash.gz " $ BINARY_NAME"
 
-echo "Clash cores installed successfully:"
+echo "✅ Clash cores installed successfully:"
 ls -l clash*

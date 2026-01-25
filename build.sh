@@ -26,6 +26,7 @@ PACKAGES="$PACKAGES luci-i18n-cpulimit-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-statistics-zh-cn"
 
 # 常用软件服务
+PACKAGES="$PACKAGES lucky luci-app-lucky"
 
 # OpenClash 代理
 PACKAGES="$PACKAGES luci-app-openclash"
@@ -40,6 +41,7 @@ PACKAGES="$PACKAGES luci-i18n-homeproxy-zh-cn"
 # PACKAGES="$PACKAGES luci-i18n-nps-zh-cn luci-i18n-frpc-zh-cn"
 
 # 常用的网络存储组件
+PACKAGES="$PACKAGES luci-app-syncthing"
 
 # 应用商店
 PACKAGES="$PACKAGES taskd luci-lib-taskd luci-lib-xterm luci-app-store"
@@ -72,6 +74,7 @@ PACKAGES="$PACKAGES luci-i18n-ipsec-vpnd-zh-cn"
 # PACKAGES="$PACKAGES luci-i18n-zerotier-zh-cn"
 
 # 网络组件
+PACKAGES="$PACKAGES luci-app-tailscale"
 
 # EQoS 网速控制
 # PACKAGES="$PACKAGES luci-i18n-eqos-zh-cn"
@@ -85,7 +88,7 @@ PACKAGES="$PACKAGES luci-i18n-nlbwmon-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-base-zh-cn luci-i18n-firewall-zh-cn luci-i18n-package-manager-zh-cn"
 
 # Packages 文件夹下的 ipk 包
-PACKAGES="$PACKAGES luci-i18n-wrtbwmon-zh-cn"
+PACKAGES="$PACKAGES luci-app-wrtbwmon"
 
 # 一些自己需要的内核组件
 PACKAGES="$PACKAGES kmod-usb-printer kmod-lp"

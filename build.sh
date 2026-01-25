@@ -111,4 +111,6 @@ FILES="files"
 
 # 禁用 openssh-server 的 sshd 服务和 docker 的 dockerd 服务以防止冲突
 DISABLED_SERVICES="sshd dockerd"
+# 创建或更新 Packages 索引
+./scripts/ipkg-make-index.sh packages > packages/Packages
 make image PROFILE="$PROFILE" PACKAGES="$PACKAGES" FILES="$FILES" DISABLED_SERVICES="$DISABLED_SERVICES"

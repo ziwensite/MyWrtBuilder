@@ -57,6 +57,7 @@ jobs:
       - name: Download External Packages
         working-directory: ${{ env.VENDOR }}-imagebuilder-${{ env.VERSION }}-x86-64.Linux-x86_64
         run: |
+          mkdir -p packages
           cat external-package-urls.txt | xargs wget -P packages
       
       - name: Run Patch and DIY Scripts

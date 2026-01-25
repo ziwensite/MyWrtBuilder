@@ -61,6 +61,14 @@ jobs:
           bash scripts/clash.sh
           bash scripts/zsh.sh
 
+      # 👇 新增：下载外部 IPK 包
+      - name: Download External Packages
+        working-directory:  $ {{ env.VENDOR }}-imagebuilder- $ {{ env.VERSION }}-x86-64.Linux-x86_64
+        run: |
+          mkdir - p packages
+          cp ../origin/external-package-urls.txt ./
+          cat external-package-urls.txt | xargs -n 1 -P 4 wget -P packages --timeout=20 --tries=3
+          
       - name: Generate Firmware
         working-directory: ${{ env.VENDOR }}-imagebuilder-${{ env.VERSION }}-x86-64.Linux-x86_64
         run: |

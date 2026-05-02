@@ -1,84 +1,60 @@
-name: Build ImmortalWrt IPQ ImageBuilder
+name: 编译 ImmortalWrt-IPQ60xx ImageBuilder
 
 on:
-  workflow_dispatch:
   push:
-    tags:
-      - 'v*'
-
-permissions:
-  contents: write
+    branches: [ main ]
+  workflow_dispatch:  # 允许手动触发
 
 jobs:
   build:
     runs-on: ubuntu-22.04
-    
     steps:
-      # 1. 安装编译依赖
-      - name: Set up Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libncurses-dev zlib1g-dev gawk git libssl-dev xsltproc wget unzip python3-distutils python3-dev
-
-      # 2. 克隆指定的源码仓库（增加深度拉取与完整性检查）
-      - name: Clone Source Code
-        run: |
-          # 克隆仓库
-          git clone https://github.com/ziwensite/immortalwrt-IPQ.git immortalwrt
-          cd immortalwrt
-          
-          # 【关键诊断】检查 Makefile 是否存在！
-          if [ ! -f "Makefile" ]; then
-            echo "❌ 致命错误：源码克隆不完整，根目录下找不到 Makefile！"
-            ls -la
-            exit 1
-          fi
-          echo "✅ 源码完整性检查通过，Makefile 存在。"
-
-          # 初始化 feeds
-          echo "🔄 正在更新 feeds..."
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
-      # 3. 编译 ImageBuilder（确保在正确目录下执行）
-      - name: Compile ImageBuilder
-        run: |
-          # 确保进入正确的源码目录
-          cd immortalwrt
-          set -e
-          
-          echo "⚙️ 正在生成默认配置..."
-          make defconfig
-          
-          echo "🚀 开始编译 ImageBuilder..."
-          # 加上 V=s 输出详细日志，方便排查任何隐藏的报错
-          make target/imagebuilder -j$(nproc) V=s
-
-      # 4. 准备并发布到 Release
-      - name: Prepare and Upload Release
-        run: |
-          mkdir -p release_files
-          
-          # 智能查找生成的压缩包
-          echo "正在查找编译产物..."
-          IB_FILE=$(find immortalwrt/bin/targets -type f -name "imagebuilder-*.tar.xz" | head -n 1)
-          
-          if [ -z "$IB_FILE" ]; then
-            echo "❌ 找不到 ImageBuilder 压缩包，请检查上方编译日志。"
-            exit 1
-          fi
-          
-          echo "找到文件：$IB_FILE"
-          cp "$IB_FILE" release_files/
-          cd release_files
-          sha256sum * > sha256sums
-          
-      - name: Upload to Release
-        uses: softprops/action-gh-release@v1
+      - name: 检出源码
+        uses: actions/checkout@v4
         with:
-          files: release_files/*
-          tag_name: v1.0.${{ github.run_number }}
-          name: ImmortalWrt IPQ ImageBuilder Build ${{ github.run_number }}
-          body: "自动构建的 ImmortalWrt IPQ ImageBuilder"
+          repository: ziwensite/immortalwrt-IPQ
+          ref: main
+          fetch-depth: 1
+
+      - name: 安装编译环境
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential clang flex bison g++ gawk \
+          gcc-multilib gettext git libncurses5-dev libssl-dev \
+          python3-setuptools rsync swig unzip zlib1g-dev file wget curl
+
+      - name: 更新 feeds
+        run: ./scripts/feeds update -a && ./scripts/feeds install -a
+
+      - name: 仅选择 ipq60xx 平台
+        run: |
+          cat > .config << EOF
+          CONFIG_TARGET_ipq807x=y
+          CONFIG_TARGET_ipq807x_ipq60xx=y
+          CONFIG_TARGET_MULTI_PROFILE=n
+          EOF
+
+      - name: 生成配置
+        run: make defconfig
+
+      - name: 编译 ImageBuilder
+        run: make imagebuilder -j$(nproc) V=s
+
+      - name: 获取文件名
+        run: |
+          FILE_PATH=$(find bin/targets/ipq807x/ipq60xx/ -name "imagebuilder*.tar.xz")
+          FILE_NAME=$(basename $FILE_PATH)
+          cp $FILE_PATH ./$FILE_NAME
+          echo "FILE=$FILE_NAME" >> $GITHUB_ENV
+
+      - name: 上传到 GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.FILE }}
+          tag_name: ipq60xx-imagebuilder-${{ github.run_number }}
+          name: IPQ60xx 专用 ImageBuilder
+          body: |
+            平台：ipq60xx
+            源码：https://github.com/ziwensite/immortalwrt-IPQ
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

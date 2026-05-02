@@ -7,6 +7,15 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
+      VERSION:
+        description: '天灵源码-请选择分支'
+        required: true
+        default: '25.12.0-rc2'
+        type: choice
+        options:
+          - '24.10.4'
+          - '24.10.6'
+          - '25.12.0-rc2'
       release: 
         description: 将编译出的镜像上传到 Release
         required: false
@@ -19,7 +28,7 @@ on:
 env:
   DOWNLOAD_BASE: https://downloads.immortalwrt.org
   VENDOR: immortalwrt
-  VERSION: 24.10.4
+  VERSION: ${{ github.event.inputs.VERSION }}
   UCI_CUSTOM_FILE: uci-custom
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel

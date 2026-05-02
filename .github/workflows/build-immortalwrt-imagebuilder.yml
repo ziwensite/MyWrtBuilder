@@ -1,9 +1,8 @@
-name: 编译 ImmortalWrt-IPQ60xx ImageBuilder
-
+name: 编译 IPQ60xx ImageBuilder
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
-  workflow_dispatch:  # 允许手动触发
 
 jobs:
   build:
@@ -16,45 +15,46 @@ jobs:
           ref: main
           fetch-depth: 1
 
-      - name: 安装编译环境
+      - name: 安装编译依赖
         run: |
           sudo apt update
           sudo apt install -y build-essential clang flex bison g++ gawk \
-          gcc-multilib gettext git libncurses5-dev libssl-dev \
-          python3-setuptools rsync swig unzip zlib1g-dev file wget curl
+          gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev \
+          python3-setuptools python3-dev libelf-dev cmake ninja-build \
+          rsync swig unzip zlib1g-dev file wget
 
       - name: 更新 feeds
         run: ./scripts/feeds update -a && ./scripts/feeds install -a
 
-      - name: 仅选择 ipq60xx 平台
+      - name: 锁定 ipq60xx 目标
         run: |
           cat > .config << EOF
           CONFIG_TARGET_ipq807x=y
           CONFIG_TARGET_ipq807x_ipq60xx=y
           CONFIG_TARGET_MULTI_PROFILE=n
+          CONFIG_ALL_NONSHARED=n
           EOF
 
       - name: 生成配置
         run: make defconfig
 
-      - name: 编译 ImageBuilder
+      - name: 先编译完整固件（生成 ImageBuilder 必须）
+        run: make -j$(nproc) V=s
+
+      - name: 生成 ImageBuilder
         run: make imagebuilder -j$(nproc) V=s
 
-      - name: 获取文件名
+      - name: 提取 ImageBuilder
         run: |
-          FILE_PATH=$(find bin/targets/ipq807x/ipq60xx/ -name "imagebuilder*.tar.xz")
-          FILE_NAME=$(basename $FILE_PATH)
-          cp $FILE_PATH ./$FILE_NAME
-          echo "FILE=$FILE_NAME" >> $GITHUB_ENV
+          FILE=$(find bin/targets/ipq807x/ipq60xx -name "imagebuilder*.tar.xz")
+          cp $FILE ./
+          echo "FILE=$(basename $FILE)" >> $GITHUB_ENV
 
-      - name: 上传到 GitHub Release
+      - name: 上传到 Release
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.FILE }}
           tag_name: ipq60xx-imagebuilder-${{ github.run_number }}
           name: IPQ60xx 专用 ImageBuilder
-          body: |
-            平台：ipq60xx
-            源码：https://github.com/ziwensite/immortalwrt-IPQ
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

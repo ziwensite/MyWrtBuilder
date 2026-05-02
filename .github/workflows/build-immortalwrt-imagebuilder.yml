@@ -1,0 +1,67 @@
+name: Build ImmortalWrt IPQ ImageBuilder
+
+on:
+  workflow_dispatch: # 允许手动触发
+  push:
+    tags:
+      - 'v*' # 当你推送 v1.0, v2.0 这样的标签时，会自动触发编译并发布 Release
+
+# 增加权限配置，允许 Actions 写入仓库内容（发布 Release 必须）
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    
+    steps:
+      # 1. 安装编译依赖
+      - name: Set up Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libncurses-dev zlib1g-dev gawk git libssl-dev xsltproc wget unzip python3-distutils python3-dev
+
+      # 2. 克隆指定的源码仓库
+      - name: Clone Source Code
+        run: |
+          # 克隆 ziwensite 的 immortalwrt-IPQ 仓库
+          git clone https://github.com/ziwensite/immortalwrt-IPQ.git immortalwrt
+          cd immortalwrt
+          
+          # 初始化 feeds
+          ./scripts/feeds update -a
+
+      # 3. 编译 ImageBuilder
+      - name: Compile ImageBuilder
+        run: |
+          cd immortalwrt
+          # 生成 ImageBuilder
+          make target/imagebuilder -j$(nproc)
+
+      # 4. 准备发布到 Release 的文件
+      - name: Prepare Release Files
+        run: |
+          mkdir -p release_files
+          # 将编译好的 imagebuilder 压缩包复制到发布目录
+          cp immortalwrt/bin/targets/*/imagebuilder-*.tar.xz release_files/
+          
+          # 顺便生成一个校验文件（可选，方便验证下载的文件是否完整）
+          cd release_files
+          sha256sum * > sha256sums
+
+      # 5. 自动创建 Release 并上传镜像
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release_files/* # 上传 release_files 目录下的所有文件
+          tag_name: v1.0.${{ github.run_number }} # 自动生成版本号，例如 v1.0.1, v1.0.2
+          name: ImmortalWrt IPQ ImageBuilder Build ${{ github.run_number }}
+          body: |
+            ### 🚀 自动构建的 ImmortalWrt IPQ ImageBuilder
+            - **源码来源**: ziwensite/immortalwrt-IPQ
+            - **构建时间**: ${{ github.event.repository.updated_at }}
+            - **运行编号**: ${{ github.run_number }}
+          draft: false # 不存为草稿，直接发布
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 使用 GitHub 自动提供的令牌

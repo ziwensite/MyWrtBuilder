@@ -1,12 +1,11 @@
 name: Build ImmortalWrt IPQ ImageBuilder
 
 on:
-  workflow_dispatch: # 允许手动触发
+  workflow_dispatch:
   push:
     tags:
-      - 'v*' # 当你推送 v1.0, v2.0 这样的标签时，会自动触发编译并发布 Release
+      - 'v*'
 
-# 增加权限配置，允许 Actions 写入仓库内容（发布 Release 必须）
 permissions:
   contents: write
 
@@ -21,65 +20,65 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential libncurses-dev zlib1g-dev gawk git libssl-dev xsltproc wget unzip python3-distutils python3-dev
 
-      # 2. 克隆指定的源码仓库
+      # 2. 克隆指定的源码仓库（增加深度拉取与完整性检查）
       - name: Clone Source Code
         run: |
-          # 克隆 ziwensite 的 immortalwrt-IPQ 仓库
+          # 克隆仓库
           git clone https://github.com/ziwensite/immortalwrt-IPQ.git immortalwrt
           cd immortalwrt
           
-          # 初始化 feeds
-          ./scripts/feeds update -a
+          # 【关键诊断】检查 Makefile 是否存在！
+          if [ ! -f "Makefile" ]; then
+            echo "❌ 致命错误：源码克隆不完整，根目录下找不到 Makefile！"
+            ls -la
+            exit 1
+          fi
+          echo "✅ 源码完整性检查通过，Makefile 存在。"
 
-      # 3. 编译 ImageBuilder（增加严格错误拦截与路径检查）
+          # 初始化 feeds
+          echo "🔄 正在更新 feeds..."
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      # 3. 编译 ImageBuilder（确保在正确目录下执行）
       - name: Compile ImageBuilder
         run: |
+          # 确保进入正确的源码目录
           cd immortalwrt
-          # 使用 set -e 确保如果 make 命令报错，整个流程会立刻停止并显示失败
           set -e
-          echo "开始编译 ImageBuilder..."
-          make target/imagebuilder -j$(nproc)
           
-          echo "✅ 编译步骤完成，正在检查输出目录结构..."
-          # 打印出 bin/targets 下的真实目录结构，方便我们在日志中排查路径
-          find bin/targets -type f -name "*.tar.xz" || echo "⚠️ 警告：在 bin/targets 下没有找到 .tar.xz 文件！"
+          echo "⚙️ 正在生成默认配置..."
+          make defconfig
+          
+          echo "🚀 开始编译 ImageBuilder..."
+          # 加上 V=s 输出详细日志，方便排查任何隐藏的报错
+          make target/imagebuilder -j$(nproc) V=s
 
-      # 4. 准备发布到 Release 的文件（增加智能查找逻辑）
-      - name: Prepare Release Files
+      # 4. 准备并发布到 Release
+      - name: Prepare and Upload Release
         run: |
           mkdir -p release_files
           
-          # 【核心修复】不再写死绝对路径，而是使用 find 命令在 immortalwrt 目录下智能查找 imagebuilder 压缩包
-          echo "正在查找并复制 ImageBuilder 压缩包..."
-          IB_FILE=$(find immortalwrt -type f -name "imagebuilder-*.tar.xz" | head -n 1)
+          # 智能查找生成的压缩包
+          echo "正在查找编译产物..."
+          IB_FILE=$(find immortalwrt/bin/targets -type f -name "imagebuilder-*.tar.xz" | head -n 1)
           
           if [ -z "$IB_FILE" ]; then
-            echo "❌ 致命错误：找不到编译好的 imagebuilder 压缩包！"
-            echo "请向上翻阅 'Compile ImageBuilder' 步骤的日志，检查 make 是否报错。"
+            echo "❌ 找不到 ImageBuilder 压缩包，请检查上方编译日志。"
             exit 1
-          else
-            echo "找到文件：$IB_FILE，正在复制到 release_files 目录..."
-            cp "$IB_FILE" release_files/
           fi
           
-          # 生成校验文件
+          echo "找到文件：$IB_FILE"
+          cp "$IB_FILE" release_files/
           cd release_files
           sha256sum * > sha256sums
-          echo "✅ 发布文件准备完毕！"
-
-      # 5. 自动创建 Release 并上传镜像
+          
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
         with:
-          files: release_files/* # 上传 release_files 目录下的所有文件
-          tag_name: v1.0.${{ github.run_number }} # 自动生成版本号，例如 v1.0.1, v1.0.2
+          files: release_files/*
+          tag_name: v1.0.${{ github.run_number }}
           name: ImmortalWrt IPQ ImageBuilder Build ${{ github.run_number }}
-          body: |
-            ### 🚀 自动构建的 ImmortalWrt IPQ ImageBuilder
-            - **源码来源**: ziwensite/immortalwrt-IPQ
-            - **构建时间**: ${{ github.event.repository.updated_at }}
-            - **运行编号**: ${{ github.run_number }}
-          draft: false # 不存为草稿，直接发布
-          prerelease: false
+          body: "自动构建的 ImmortalWrt IPQ ImageBuilder"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 使用 GitHub 自动提供的令牌
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
